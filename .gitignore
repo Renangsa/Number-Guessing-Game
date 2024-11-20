@@ -1,6 +1,7 @@
 ### VS Code ###
 .vscode/
+build/
+out/
 
-output
+compile_commands.json
 
-Main.exe

@@ -1,5 +1,7 @@
 #include <iostream>
 #include <random>
+#include <stdlib.h>
+#include <chrono>
 
 using namespace std;
 
@@ -10,10 +12,12 @@ class GameMode
     int tries;
     string difficulty;
     bool exit;
+    short seconds;
     GameMode()
     {
         tries = 0;
         chances = 0;
+        seconds = 0;
         difficulty = "None";
         exit = false;
     }
@@ -22,6 +26,7 @@ class GameMode
     {
         tries = 0;
         chances = 0;
+        seconds = 0;
         difficulty = "None";
     }
 };
@@ -32,24 +37,23 @@ class GameMode
 
 }; */
 
-bool wrongEntry()
+int checkInput(int input)
 {
-        if (cin.fail()) // Verifica se houve erro na entrada
+        while (cin.fail()) // Verifica se houve erro na entrada
         { 
             cin.clear(); // Limpa o estado de erro
             cin.ignore(1000, '\n'); // Ignora os caracteres restantes no buffer
             cout << "Entrada inválida! Tente novamente.\n";
-            return true;
+            cin >> input;
         }
-        else
-            return false;
+        return input;
 }
 
 void runGame(GameMode &gameInfo)
 {
     if(!gameInfo.exit){
         int randomNum= 1+ (rand() % 100);
-        int entry;
+        int input;
         gameInfo.resetGameCache();
 
 
@@ -58,10 +62,9 @@ void runGame(GameMode &gameInfo)
         cout << "Digite 1 para: Jogar!\n";
         cout << "Digite 2 para: Sair!\n";
         cout << "Aguardando resposta: ";
-        cin >> entry;
-        //if(wrongEntry()) //{continue;} // Reinicia o loop
+        cin >> input;
 
-        switch (entry)
+        switch (checkInput(input))
         {
             case 0:
                 cout << "-> O computador escolherá aleatoriamente um número secreto entre 1 e 100.\n";
@@ -71,19 +74,20 @@ void runGame(GameMode &gameInfo)
                 cout << "-> Caso contrário, o jogo continuará até que suas tentativas se esgotem e você perca.\n";
                 cout << "-> Boa sorte!\n";
                 system("Pause");
+                system("CLS");
                 cout << "-------------------------------------------------------------------------------------\n\n";
                 runGame(gameInfo);
                 break;
             case 1:
+            {
                 cout << "Bem-vindo ao Jogo de Adivinhação de Números! Estou pensando em um número entre 1 e 100.\n";
                 cout << "Selecione o nível de dificuldade:\n";
                 cout << "1 - Easy (20 tentativas)\n";
                 cout << "2 - Medium (10 tentativas)\n";
                 cout << "3 - Hard (5 tentativas)\n";
-                cin >> entry;
-                //if(wrongEntry()) //{continue;} // Reinicia o loop
+                cin >> input;
                 
-                switch (entry)
+                switch (checkInput(input))
                 {
                     case 1:
                         gameInfo.chances = 20;
@@ -102,32 +106,33 @@ void runGame(GameMode &gameInfo)
                         system("Pause");
                         break;
                 }
+                chrono::steady_clock::time_point clock_begin = chrono::steady_clock::now();
                 cout << "A dificuldade selecionada foi o modo " << gameInfo.difficulty << endl;
                 while (gameInfo.chances > 0) //Jogando
                 {
                     gameInfo.tries++;
                     cout << "Você tem " << gameInfo.chances << " tentativas restantes...\n";
                     cout << "Digite seu palpite: ";
-                    cin >> entry;
-                    if (wrongEntry())
+                    cin >> input;
+                    input = checkInput(input);
+                    if (input == randomNum)
                     {
-                        continue;
-                    }
-                    else if (entry == randomNum)
-                    {
+                        chrono::steady_clock::time_point clock_end = chrono::steady_clock::now(); // O tempo desde que escolheu a dificuldade até acertar
+                        chrono::steady_clock::duration time_span = clock_end - clock_begin;
+                        auto seconds = double(time_span.count()) * chrono::steady_clock::period::num / chrono::steady_clock::period::den;
                         cout << "Parabéns! Você acertou o número correto em " << gameInfo.tries << " tentativa(s)\n";
-
+                        cout << "Seu tempo foi de: " << seconds << " segundos\n";
                         break;
                     }
                     else
                     {
-                        if (entry > randomNum)
+                        if (input > randomNum)
                         {
-                            cout << "Incorreto! O número que estou pensando é menor que " << entry << endl;
+                            cout << "Incorreto! O número que estou pensando é menor que " << input << endl;
                         }
-                        else if (entry < randomNum)
+                        else if (input < randomNum)
                         {
-                            cout << "Incorreto! O número que estou pensando é maior que " << entry << endl;
+                            cout << "Incorreto! O número que estou pensando é maior que " << input << endl;
                         }
                     }
                     gameInfo.chances--;
@@ -136,8 +141,8 @@ void runGame(GameMode &gameInfo)
                 cout << "Deseja jogar novamente? ";
                 cout << "1 - (Sim) | 2 - (Não)\n";
                 cout << "Aguardando resposta: ";
-                cin >> entry;
-                if (entry==1) {runGame(gameInfo);}
+                cin >> input;
+                if (input==1) {system("CLS"); runGame(gameInfo);}
                 else
                 {
                     cout << "--------------------------------------\n";
@@ -146,6 +151,7 @@ void runGame(GameMode &gameInfo)
                 }
                 //playing = false;
                 break;
+            }
             case 2:
                 cout << "Até a próxima!\n";
                 gameInfo.exit = true;

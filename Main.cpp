@@ -3,6 +3,35 @@
 
 using namespace std;
 
+class GameMode
+{
+    public:
+    int chances;
+    int tries;
+    string difficulty;
+    bool exit;
+    GameMode()
+    {
+        tries = 0;
+        chances = 0;
+        difficulty = "None";
+        exit = false;
+    }
+
+    void resetGameCache()
+    {
+        tries = 0;
+        chances = 0;
+        difficulty = "None";
+    }
+};
+/*class Player
+{
+    public:
+    int highScore;
+
+}; */
+
 bool wrongEntry()
 {
         if (cin.fail()) // Verifica se houve erro na entrada
@@ -16,38 +45,21 @@ bool wrongEntry()
             return false;
 }
 
-struct GameMode
+void runGame(GameMode &gameInfo)
 {
-    int chances;
-    int tries;
-    string difficulty;
-    GameMode()
-    {
-        tries = 0;
-        chances = 0;
-        difficulty = "None";
-    }
-};
-
-
-int main()
-{
-    bool playing = true;
-    setlocale(LC_ALL, "pt_BR.UTF-8");
-    srand(time(NULL));
-    // When the game starts, it should display a welcome message along with the rules of the game.
-    while (playing)
-    {
+    if(!gameInfo.exit){
         int randomNum= 1+ (rand() % 100);
         int entry;
-        GameMode game;
+        gameInfo.resetGameCache();
+
 
         cout << "Bem-vindo ao jogo de adivinhação de números!\n";
         cout << "Digite 0 para: Acessar regras!\n";
         cout << "Digite 1 para: Jogar!\n";
+        cout << "Digite 2 para: Sair!\n";
         cout << "Aguardando resposta: ";
         cin >> entry;
-        if(wrongEntry()) {continue;} // Reinicia o loop
+        //if(wrongEntry()) //{continue;} // Reinicia o loop
 
         switch (entry)
         {
@@ -60,6 +72,7 @@ int main()
                 cout << "-> Boa sorte!\n";
                 system("Pause");
                 cout << "-------------------------------------------------------------------------------------\n\n";
+                runGame(gameInfo);
                 break;
             case 1:
                 cout << "Bem-vindo ao Jogo de Adivinhação de Números! Estou pensando em um número entre 1 e 100.\n";
@@ -68,31 +81,32 @@ int main()
                 cout << "2 - Medium (10 tentativas)\n";
                 cout << "3 - Hard (5 tentativas)\n";
                 cin >> entry;
-                if(wrongEntry()) {continue;} // Reinicia o loop
+                //if(wrongEntry()) //{continue;} // Reinicia o loop
                 
                 switch (entry)
                 {
-                case 1:
-                    game.chances = 20;
-                    game.difficulty = "Easy";
-                    break;
-                case 2:
-                    game.chances = 10;
-                    game.difficulty = "Medium";
-                    break;
-                case 3:
-                    game.chances = 5;
-                    game.difficulty = "Hard";
-                    break;
-                default:
-                    cout << "Entrada inválida! ";
-                    system("Pause");
-                    break;
+                    case 1:
+                        gameInfo.chances = 20;
+                        gameInfo.difficulty = "Easy";
+                        break;
+                    case 2:
+                        gameInfo.chances = 10;
+                        gameInfo.difficulty = "Medium";
+                        break;
+                    case 3:
+                        gameInfo.chances = 5;
+                        gameInfo.difficulty = "Hard";
+                        break;
+                    default:
+                        cout << "Entrada inválida! ";
+                        system("Pause");
+                        break;
                 }
-                cout << "A dificuldade selecionada foi o modo " << game.difficulty << endl;
-                while (game.chances > 0) //Jogando
+                cout << "A dificuldade selecionada foi o modo " << gameInfo.difficulty << endl;
+                while (gameInfo.chances > 0) //Jogando
                 {
-                    cout << "Você tem " << game.chances << " tentativas restantes...\n";
+                    gameInfo.tries++;
+                    cout << "Você tem " << gameInfo.chances << " tentativas restantes...\n";
                     cout << "Digite seu palpite: ";
                     cin >> entry;
                     if (wrongEntry())
@@ -101,7 +115,7 @@ int main()
                     }
                     else if (entry == randomNum)
                     {
-                        cout << "Parabéns! Você acertou o número correto em " << game.tries << " tentativas\n";
+                        cout << "Parabéns! Você acertou o número correto em " << gameInfo.tries << " tentativa(s)\n";
 
                         break;
                     }
@@ -116,12 +130,25 @@ int main()
                             cout << "Incorreto! O número que estou pensando é maior que " << entry << endl;
                         }
                     }
-                    game.chances--;
+                    gameInfo.chances--;
                 }
                 cout << "O número sorteado foi " << randomNum << "!\n";
-                cout << "--------------------------------------\n";
-                cout << "Obrigado por jogar. Até a próxima!\n";
-                playing = false;
+                cout << "Deseja jogar novamente? ";
+                cout << "1 - (Sim) | 2 - (Não)\n";
+                cout << "Aguardando resposta: ";
+                cin >> entry;
+                if (entry==1) {runGame(gameInfo);}
+                else
+                {
+                    cout << "--------------------------------------\n";
+                    cout << "Obrigado por jogar. Até a próxima!\n";
+                    gameInfo.exit = true;
+                }
+                //playing = false;
+                break;
+            case 2:
+                cout << "Até a próxima!\n";
+                gameInfo.exit = true;
                 break;
             default:
                 cout << "Entrada inválida! "; 
@@ -129,6 +156,18 @@ int main()
                 break;
         }
     }
+}
+
+
+int main()
+{
+    //bool playing = true;
+    setlocale(LC_ALL, "pt_BR.UTF-8");
+    srand(time(NULL));
+    GameMode game;
+    // When the gameInfo starts, it should display a welcome message along with the rules of the gameInfo.
+    runGame(game);
+    
     
     return 0;
 }
